@@ -46,9 +46,10 @@ jobs:
           which curl || echo "curl not found"
           which bash || echo "bash not found"
 
-      # Step 5: Install Maestro
+      # Step 5: Install Maestro (Ensuring bash is available before running this step)
       - name: Install Maestro
         run: |
+          which bash || { echo "bash not found"; exit 1; }
           bash -c "curl -Ls 'https://get.maestro.mobile.dev' | bash"
         env:
           PATH: $HOME/.maestro/bin:$PATH
