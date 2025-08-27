@@ -32,7 +32,7 @@ jobs:
      #Step 2: Install Maestro using Homebrew
       - name: Install Maestro
         run: |
-          brew install maestro
+         curl -Ls "https://get.maestro.mobile.dev" | bash
 
       # Step 3: Start Android Emulator
       - name: Start Android Emulator
