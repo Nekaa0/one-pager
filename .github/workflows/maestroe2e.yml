@@ -44,7 +44,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y curl bash unzip openjdk-11-jdk qemu-kvm libvirt-daemon libvirt-clients bridge-utils
-          
+
           # Set JAVA_HOME environment variable
           export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
@@ -53,14 +53,14 @@ jobs:
           curl -s https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -o commandlinetools.zip
           unzip commandlinetools.zip
           
-          # Set up the SDK root and install required components
+          # Set up the SDK root
           export ANDROID_SDK_ROOT=$HOME/.android
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           mv cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
           
-          # Install the required components (platform-tools, emulator, and system images)
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
-          
+          # Install the required SDK components including avdmanager
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64" "tools"
+
           # Ensure adb and other tools are installed
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 
