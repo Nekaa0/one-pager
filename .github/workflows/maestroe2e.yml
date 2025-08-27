@@ -40,6 +40,8 @@ jobs:
       - name: Install Maestro
         run: |
           curl -Ls "https://get.maestro.mobile.dev" | bash
+        env:
+          PATH: $HOME/.maestro/bin:$PATH
 
       # Step 6: Start Android Emulator
       - name: Start Android Emulator
@@ -91,3 +93,5 @@ jobs:
       - name: Run Maestro Tests
         run: |
           maestro test maestro/login_test.yaml
+        env:
+          PATH: $HOME/.maestro/bin:$PATH
