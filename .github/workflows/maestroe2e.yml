@@ -1,15 +1,15 @@
-name: E2E (Maestro)
+name: Maestro E2E Tests
 
 on:
   push:
   pull_request:
 
 jobs:
-  web-e2e:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
+      # Step 1: Checkout the repository
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -73,10 +73,10 @@ jobs:
 
           # Create and start the AVD (Android Virtual Device)
           echo "Creating Android AVD if not exists..."
-          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force --sdk_root=$ANDROID_SDK_ROOT
           
-          # Start the emulator
-          nohup $ANDROID_SDK_ROOT/emulator/emulator -avd test-emulator -no-window -gpu off &
+          # Start the emulator with explicit SDK root
+          nohup $ANDROID_SDK_ROOT/emulator/emulator -avd test-emulator -no-window -gpu off -sdk_root=$ANDROID_SDK_ROOT &
           
           # Wait for the emulator to be ready
           for i in {1..30}; do
