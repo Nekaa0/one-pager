@@ -38,8 +38,8 @@ jobs:
         #new step 4.5
       - name: Install curl and bash
         run: |
-          apt-get update
-          apt-get install -y curl bash
+          sudo apt-get update
+          sudo apt-get install -y curl bash
         env:
           PATH: $HOME/.maestro/bin:$PATH
       # Step 5: Install Maestro
