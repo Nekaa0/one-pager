@@ -1,0 +1,66 @@
+name: E2E (Maestro)
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  web-e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install app deps
+        run: npm ci || npm install
+
+      - name: Start web server
+        run: |
+          nohup npm start &
+          # Wait for server to be ready
+          for i in {1..30}; do
+            if curl -sSf http://localhost:3000 >/dev/null; then echo "Server up"; break; fi
+            sleep 1
+          done
+
+     #Step 2: Install Maestro using Homebrew
+      - name: Install Maestro
+        run: |
+          brew install maestro
+
+      # Step 3: Start Android Emulator
+      - name: Start Android Emulator
+        run: |
+          echo "Starting Android emulator..."
+          # Install required packages for Android Emulator
+          sudo apt update
+          sudo apt install -y qemu-kvm libvirt-daemon libvirt-clients bridge-utils
+          curl -s https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -o commandlinetools.zip
+          unzip commandlinetools.zip
+          mkdir -p ~/.android
+          yes | ./cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.android --licenses
+          ./cmdline-tools/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
+          
+          # Create AVD (Android Virtual Device) if not already created
+          echo "Creating Android AVD if not exists..."
+          echo "no" | ./cmdline-tools/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
+          
+          # Start the emulator
+          nohup ./emulator/emulator -avd test-emulator -no-window -gpu off &
+          
+          # Wait for the emulator to be ready
+          for i in {1..30}; do
+            if adb devices | grep -q "emulator"; then echo "Emulator is ready"; break; fi
+            sleep 5
+          done
+
+      # Step 4: Run Maestro Tests
+      - name: Run Maestro Tests
+        run: |
+          maestro test maestro/login_test.yaml
