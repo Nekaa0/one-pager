@@ -53,18 +53,21 @@ jobs:
           # Move the downloaded cmdline-tools to the right location
           mv cmdline-tools $HOME/.android/cmdline-tools/latest
 
+          # Set ANDROID_SDK_ROOT environment variable
+          export ANDROID_SDK_ROOT=$HOME/.android
+
           # Accept SDK licenses
-          yes | $HOME/.android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.android --licenses
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
           
           # Install required SDK components
-          $HOME/.android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.android "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
 
           # Create and start the AVD (Android Virtual Device)
           echo "Creating Android AVD if not exists..."
-          echo "no" | $HOME/.android/cmdline-tools/latest/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force --sdk_root=$HOME/.android
+          echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
           
           # Start the emulator
-          nohup $HOME/.android/emulator/emulator -avd test-emulator -no-window -gpu off &
+          nohup $ANDROID_SDK_ROOT/emulator/emulator -avd test-emulator -no-window -gpu off &
           
           # Wait for the emulator to be ready
           for i in {1..30}; do
