@@ -12,11 +12,11 @@ jobs:
       options: --user root  # Run as root user to avoid permission issues
 
     steps:
-      # Step 1: Check out the repository
+      # Step 1: Checkout the repository
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Step 2: Set up Node.js
+      # Step 2: Setup Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -39,11 +39,15 @@ jobs:
             sleep 1
           done
 
-      # Step 4.5: Install curl, bash, and SDK tools
-      - name: Install curl, bash, and SDK tools
+      # Step 4.5: Install curl, bash, Java, and SDK tools
+      - name: Install curl, bash, Java, and SDK tools
         run: |
           apt-get update
-          apt-get install -y curl bash unzip qemu-kvm libvirt-daemon libvirt-clients bridge-utils
+          apt-get install -y curl bash unzip openjdk-11-jdk qemu-kvm libvirt-daemon libvirt-clients bridge-utils
+          
+          # Set JAVA_HOME environment variable
+          export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
           
           # Download and install the Android SDK command-line tools
           curl -s https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -o commandlinetools.zip
