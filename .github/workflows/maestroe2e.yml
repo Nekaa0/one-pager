@@ -57,6 +57,8 @@ jobs:
           export ANDROID_SDK_ROOT=$HOME/.android
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           mv cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
+          
+          # Install the required components (platform-tools, emulator, and system images)
           $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
           
           # Ensure adb and other tools are installed
