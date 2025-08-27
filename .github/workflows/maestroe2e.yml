@@ -76,6 +76,12 @@ jobs:
         run: |
           echo "Starting Android emulator..."
 
+          # Ensure the avdmanager tool exists in the expected path
+          if [ ! -f $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager ]; then
+            echo "avdmanager not found!"
+            exit 1
+          fi
+
           # Create and start the AVD (Android Virtual Device)
           echo "Creating Android AVD if not exists..."
           echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
