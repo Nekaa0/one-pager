@@ -42,11 +42,14 @@ jobs:
           export PATH=/usr/sbin:/usr/bin:/sbin:/bin:$PATH
           sudo apt-get update
           sudo apt-get install -y curl bash
+          # Verify installation
+          which curl || echo "curl not found"
+          which bash || echo "bash not found"
 
       # Step 5: Install Maestro
       - name: Install Maestro
         run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
+          bash -c "curl -Ls 'https://get.maestro.mobile.dev' | bash"
         env:
           PATH: $HOME/.maestro/bin:$PATH
 
