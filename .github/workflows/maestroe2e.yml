@@ -61,7 +61,7 @@ jobs:
 
           # Create and start the AVD (Android Virtual Device)
           echo "Creating Android AVD if not exists..."
-          echo "no" | $HOME/.android/cmdline-tools/latest/bin/avdmanager --sdk_root=$HOME/.android create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
+          echo "no" | $HOME/.android/cmdline-tools/latest/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force --sdk_root=$HOME/.android
           
           # Start the emulator
           nohup $HOME/.android/emulator/emulator -avd test-emulator -no-window -gpu off &
