@@ -9,36 +9,43 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the code
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Step 2: Setup Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      # Step 3: Install app dependencies
       - name: Install app deps
         run: npm ci || npm install
 
+      # Step 4: Start the web server
       - name: Start web server
         run: |
           nohup npm start &
-          # Wait for server to be ready
+          # Wait for the server to be ready
           for i in {1..30}; do
-            if curl -sSf http://localhost:3000 >/dev/null; then echo "Server up"; break; fi
+            if curl -sSf http://localhost:3000 >/dev/null; then
+              echo "Server up"
+              break
+            fi
             sleep 1
           done
 
-     #Step 2: Install Maestro 
+      # Step 5: Install Maestro
       - name: Install Maestro
         run: |
-         curl -Ls "https://get.maestro.mobile.dev" | bash
+          curl -Ls "https://get.maestro.mobile.dev" | bash
 
-      # Step 3: Start Android Emulator
+      # Step 6: Start Android Emulator
       - name: Start Android Emulator
         run: |
           echo "Starting Android emulator..."
-          
+
           # Install required dependencies
           sudo apt update
           sudo apt install -y qemu-kvm libvirt-daemon libvirt-clients bridge-utils
@@ -54,7 +61,9 @@ jobs:
           mv cmdline-tools $HOME/.android/cmdline-tools/latest
 
           # Set ANDROID_SDK_ROOT environment variable
+          echo "Setting ANDROID_SDK_ROOT"
           export ANDROID_SDK_ROOT=$HOME/.android
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
 
           # Accept SDK licenses
           yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
@@ -78,7 +87,7 @@ jobs:
             sleep 5
           done
 
-      # Step 6: Run Maestro Tests
+      # Step 7: Run Maestro Tests
       - name: Run Maestro Tests
         run: |
           maestro test maestro/login_test.yaml
