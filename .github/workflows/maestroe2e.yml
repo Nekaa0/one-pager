@@ -40,6 +40,8 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y curl bash
+        env:
+          PATH: $HOME/.maestro/bin:$PATH
       # Step 5: Install Maestro
       - name: Install Maestro
         run: |
