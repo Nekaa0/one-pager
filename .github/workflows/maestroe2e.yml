@@ -6,14 +6,17 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Specify the VM for the job to run on
+    container:
+      image: ubuntu:20.04  # Use an official Ubuntu image to run as root
+      options: --user root  # Run as root user to avoid permission issues
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Check out the repository
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Step 2: Setup Node.js
+      # Step 2: Set up Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -36,66 +39,44 @@ jobs:
             sleep 1
           done
 
-      # Step 4.5: Install curl and bash (fixing apt-get issue)
-      - name: Install curl and bash
+      # Step 4.5: Install curl, bash, and SDK tools
+      - name: Install curl, bash, and SDK tools
         run: |
-          export PATH=/usr/sbin:/usr/bin:/sbin:/bin:$PATH
-          sudo apt-get update
-          sudo apt-get install -y curl bash
-          # Verify installation using command -v
-          command -v curl || { echo "curl not found"; exit 1; }
-          command -v bash || { echo "bash not found"; exit 1; }
+          apt-get update
+          apt-get install -y curl bash unzip qemu-kvm libvirt-daemon libvirt-clients bridge-utils
+          
+          # Download and install the Android SDK command-line tools
+          curl -s https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -o commandlinetools.zip
+          unzip commandlinetools.zip
+          
+          # Set up the SDK root and install required components
+          export ANDROID_SDK_ROOT=$HOME/.android
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          mv cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
+          
+          # Ensure adb and other tools are installed
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools"
 
       # Step 5: Install Maestro (Ensuring bash is available before running this step)
       - name: Install Maestro
         run: |
-          # Use full path to bash to ensure it is found
-          /bin/bash -c "curl -Ls 'https://get.maestro.mobile.dev' | /bin/bash"
+          bash -c "curl -Ls 'https://get.maestro.mobile.dev' | bash"
         env:
           PATH: $HOME/.maestro/bin:$PATH
 
-        #Step 5.5: Ensure maestro is installed and in PATH
-      - name: Verify Maestro installation
-        run: |
-          # Ensure maestro is installed and accessible
-          command -v maestro || { echo "maestro not found"; exit 1; }
       # Step 6: Start Android Emulator
       - name: Start Android Emulator
         run: |
           echo "Starting Android emulator..."
 
-          # Install required dependencies
-          sudo apt update
-          sudo apt install -y qemu-kvm libvirt-daemon libvirt-clients bridge-utils
-
-          # Download command line tools
-          curl -s https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -o commandlinetools.zip
-          unzip commandlinetools.zip
-          
-          # Create the SDK folder if it doesn't exist
-          mkdir -p $HOME/.android/cmdline-tools
-
-          # Move the downloaded cmdline-tools to the right location
-          mv cmdline-tools $HOME/.android/cmdline-tools/latest
-
-          # Set ANDROID_SDK_ROOT environment variable
-          echo "Setting ANDROID_SDK_ROOT"
-          export ANDROID_SDK_ROOT=$HOME/.android
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-
-          # Accept SDK licenses
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
-          
-          # Install required SDK components
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
-
           # Create and start the AVD (Android Virtual Device)
           echo "Creating Android AVD if not exists..."
           echo "no" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
-          
+
           # Start the emulator
           nohup $ANDROID_SDK_ROOT/emulator/emulator -avd test-emulator -no-window -gpu off &
-          
+
           # Wait for the emulator to be ready
           for i in {1..30}; do
             if adb devices | grep -q "emulator"; then
