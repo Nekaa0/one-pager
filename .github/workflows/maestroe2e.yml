@@ -14,10 +14,10 @@ jobs:
         uses: actions/checkout@v4
 
       # Step 2: Setup Node.js
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+        - name: Setup Node
+          uses: actions/setup-node@v4
+          with:
+            node-version: '20'
 
       # Step 3: Install app dependencies
       - name: Install app deps
@@ -42,14 +42,14 @@ jobs:
           export PATH=/usr/sbin:/usr/bin:/sbin:/bin:$PATH
           sudo apt-get update
           sudo apt-get install -y curl bash
-          # Verify installation
-          which curl || echo "curl not found"
-          which bash || echo "bash not found"
+          # Verify installation using command -v
+          command -v curl || { echo "curl not found"; exit 1; }
+          command -v bash || { echo "bash not found"; exit 1; }
 
       # Step 5: Install Maestro (Ensuring bash is available before running this step)
       - name: Install Maestro
         run: |
-          which bash || { echo "bash not found"; exit 1; }
+          command -v bash || { echo "bash not found"; exit 1; }
           bash -c "curl -Ls 'https://get.maestro.mobile.dev' | bash"
         env:
           PATH: $HOME/.maestro/bin:$PATH
