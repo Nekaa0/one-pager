@@ -49,12 +49,10 @@ jobs:
       # Step 5: Install Maestro (Ensuring bash is available before running this step)
       - name: Install Maestro
         run: |
-          # Ensure bash is available before using it
-          command -v bash || { echo "bash not found"; exit 1; }
-          bash -c "curl -Ls 'https://get.maestro.mobile.dev' | bash"
+          # Use full path to bash to ensure it is found
+          /bin/bash -c "curl -Ls 'https://get.maestro.mobile.dev' | /bin/bash"
         env:
           PATH: $HOME/.maestro/bin:$PATH
-
       # Step 6: Start Android Emulator
       - name: Start Android Emulator
         run: |
