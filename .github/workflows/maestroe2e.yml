@@ -35,13 +35,14 @@ jobs:
             fi
             sleep 1
           done
-        #new step 4.5
+
+      # Step 4.5: Install curl and bash (fixing apt-get issue)
       - name: Install curl and bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl bash
-        env:
-          PATH: $HOME/.maestro/bin:$PATH
+          export PATH=/usr/sbin:/usr/bin:/sbin:/bin:$PATH
+          apt-get update
+          apt-get install -y curl bash
+
       # Step 5: Install Maestro
       - name: Install Maestro
         run: |
