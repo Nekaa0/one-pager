@@ -35,7 +35,11 @@ jobs:
             fi
             sleep 1
           done
-
+        #new step 4.5
+      - name: Install curl and bash
+        run: |
+          sudo apt update
+          sudo apt install -y curl bash
       # Step 5: Install Maestro
       - name: Install Maestro
         run: |
