@@ -36,7 +36,7 @@ jobs:
             sleep 1
           done
 
-      # Step 4.5: Install curl and bash (fixing apt-get issue)
+      # Step 4.5: Install curl and bash (fixing apt-get isue)
       - name: Install curl and bash
         run: |
           export PATH=/usr/sbin:/usr/bin:/sbin:/bin:$PATH
