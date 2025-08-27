@@ -40,8 +40,8 @@ jobs:
       - name: Install curl and bash
         run: |
           export PATH=/usr/sbin:/usr/bin:/sbin:/bin:$PATH
-          apt-get update
-          apt-get install -y curl bash
+          sudo apt-get update
+          sudo apt-get install -y curl bash
 
       # Step 5: Install Maestro
       - name: Install Maestro
