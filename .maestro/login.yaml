@@ -1,0 +1,17 @@
+# Web login flow
+appId: web
+---
+- openLink: http://10.0.2.2:3000
+
+- tapOn:
+    id: 'email'
+- inputText: 'demo@example.com'
+- tapOn:
+    id: 'password'
+- inputText: 'secret123'
+- hideKeyboard
+- tapOn:
+    text: 'Sign in'
+- assertVisible:
+    text: 'Welcome, my able QA'
+
