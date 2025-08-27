@@ -29,7 +29,7 @@ jobs:
             sleep 1
           done
 
-     #Step 2: Install Maestro using Homebrew
+     #Step 2: Install Maestro 
       - name: Install Maestro
         run: |
          curl -Ls "https://get.maestro.mobile.dev" | bash
@@ -38,29 +38,44 @@ jobs:
       - name: Start Android Emulator
         run: |
           echo "Starting Android emulator..."
-          # Install required packages for Android Emulator
+          
+          # Install required dependencies
           sudo apt update
           sudo apt install -y qemu-kvm libvirt-daemon libvirt-clients bridge-utils
+
+          # Download command line tools
           curl -s https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -o commandlinetools.zip
           unzip commandlinetools.zip
-          mkdir -p ~/.android
-          yes | ./cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.android --licenses
-          ./cmdline-tools/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
           
-          # Create AVD (Android Virtual Device) if not already created
+          # Create the SDK folder if it doesn't exist
+          mkdir -p $HOME/.android/cmdline-tools
+
+          # Move the downloaded cmdline-tools to the right location
+          mv cmdline-tools $HOME/.android/cmdline-tools/latest
+
+          # Accept SDK licenses
+          yes | $HOME/.android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.android --licenses
+          
+          # Install required SDK components
+          $HOME/.android/cmdline-tools/latest/bin/sdkmanager --sdk_root=$HOME/.android "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
+
+          # Create and start the AVD (Android Virtual Device)
           echo "Creating Android AVD if not exists..."
-          echo "no" | ./cmdline-tools/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
+          echo "no" | $HOME/.android/cmdline-tools/latest/bin/avdmanager --sdk_root=$HOME/.android create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
           
           # Start the emulator
-          nohup ./emulator/emulator -avd test-emulator -no-window -gpu off &
+          nohup $HOME/.android/emulator/emulator -avd test-emulator -no-window -gpu off &
           
           # Wait for the emulator to be ready
           for i in {1..30}; do
-            if adb devices | grep -q "emulator"; then echo "Emulator is ready"; break; fi
+            if adb devices | grep -q "emulator"; then
+              echo "Emulator is ready"
+              break
+            fi
             sleep 5
           done
 
-      # Step 4: Run Maestro Tests
+      # Step 6: Run Maestro Tests
       - name: Run Maestro Tests
         run: |
           maestro test maestro/login_test.yaml
