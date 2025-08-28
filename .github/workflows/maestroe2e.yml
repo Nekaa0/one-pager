@@ -1,4 +1,4 @@
-name: Maestro E2E Tests (Chromium)
+name: Maestro E2E Tests (Web/Chromium)
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+      MAESTRO_CLI_NO_ANALYTICS: "1"  # Disable analytics for CI
 
     steps:
       # Step 1: Checkout repository
@@ -35,18 +38,18 @@ jobs:
             sleep 1
           done
 
-      # Step 5: Install Maestro and run tests (Chromium)
+      # Step 5: Install Maestro and run tests
       - name: Install Maestro and Run Tests
         run: |
-          # Ensure system tools exist
+          # Ensure curl and bash exist
           sudo apt-get update
           sudo apt-get install -y curl bash
 
-          # Install Maestro
+          # Install Maestro CLI
           curl -Ls "https://get.maestro.mobile.dev" | bash
 
-          # Add Maestro to PATH for this shell
+          # Add Maestro to PATH for this step
           export PATH=$HOME/.maestro/bin:$PATH
 
-          # Run tests on Chromium
-          maestro test maestro/login_test.yaml --device "chromium"
+          # Run Maestro tests (web/Chromium mode by default)
+          maestro test maestro/login_test.yaml
