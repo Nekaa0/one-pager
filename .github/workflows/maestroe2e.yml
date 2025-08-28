@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
+      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -23,7 +23,7 @@ jobs:
       - name: Install app dependencies
         run: npm ci
 
-      # Step 4: Start the web server
+      # Step 4: Start web server
       - name: Start web server
         run: |
           nohup npm start &
@@ -35,16 +35,16 @@ jobs:
             sleep 1
           done
 
-      # Step 5: Install system tools (if not already available)
-      - name: Ensure system tools
-        run: sudo apt-get update && sudo apt-get install -y curl bash
-
-      # Step 6: Install Maestro
+      # Step 5: Install Maestro (and ensure curl/bash exist)
       - name: Install Maestro
-        run: curl -Ls "https://get.maestro.mobile.dev" | bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl bash
+          curl -Ls "https://get.maestro.mobile.dev" | bash
 
-      # Step 7: Run Maestro Tests in Chromium
+      # Step 6: Run Maestro tests in Chromium
       - name: Run Maestro Tests
         run: maestro test maestro/login_test.yaml --device "chromium"
+        # Add Maestro bin to PATH for this step
         env:
           PATH: $HOME/.maestro/bin:$PATH
