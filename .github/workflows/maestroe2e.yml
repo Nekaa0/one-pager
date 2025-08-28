@@ -52,4 +52,4 @@ jobs:
           export PATH=$HOME/.maestro/bin:$PATH
 
           # Run Maestro tests (web/Chromium mode by default)
-          maestro test maestro/login_test.yaml
+          maestro test .maestro/login_test.yaml
