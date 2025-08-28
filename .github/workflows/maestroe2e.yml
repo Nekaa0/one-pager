@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: '20'
 
-      # Step 3: Install dependencies
+      # Step 3: Install app dependencies
       - name: Install app dependencies
         run: npm ci
 
@@ -35,16 +35,18 @@ jobs:
             sleep 1
           done
 
-      # Step 5: Install Maestro (and ensure curl/bash exist)
-      - name: Install Maestro
+      # Step 5: Install Maestro and run tests (Chromium)
+      - name: Install Maestro and Run Tests
         run: |
+          # Ensure system tools exist
           sudo apt-get update
           sudo apt-get install -y curl bash
+
+          # Install Maestro
           curl -Ls "https://get.maestro.mobile.dev" | bash
 
-      # Step 6: Run Maestro tests in Chromium
-      - name: Run Maestro Tests
-        run: maestro test maestro/login_test.yaml --device "chromium"
-        # Add Maestro bin to PATH for this step
-        env:
-          PATH: $HOME/.maestro/bin:$PATH
+          # Add Maestro to PATH for this shell
+          export PATH=$HOME/.maestro/bin:$PATH
+
+          # Run tests on Chromium
+          maestro test maestro/login_test.yaml --device "chromium"
