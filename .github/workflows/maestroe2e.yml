@@ -35,16 +35,15 @@ jobs:
             sleep 1
           done
 
-      # Step 5: Install Maestro
+      # Step 5: Install system dependencies (curl & bash)
+      - name: Install system tools
+        run: sudo apt-get update && sudo apt-get install -y curl bash
+
+      # Step 6: Install Maestro
       - name: Install Maestro
-        run: |
-          curl -Ls "https://get.maestro.mobile.dev" | bash
+        run: curl -Ls "https://get.maestro.mobile.dev" | bash
         env:
           PATH: $HOME/.maestro/bin:$PATH
-
-      # Step 6: Install Chromium (needed for browser testing)
-      - name: Install Chromium
-        run: sudo apt-get update && sudo apt-get install -y chromium-browser
 
       # Step 7: Run Maestro Tests in Chromium
       - name: Run Maestro Tests
