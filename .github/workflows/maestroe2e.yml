@@ -1,66 +1,55 @@
-name: E2E (Maestro)
+name: Maestro E2E Tests (Web/Chromium)
 
 on:
   push:
   pull_request:
 
 jobs:
-  web-e2e:
+  test:
     runs-on: ubuntu-latest
 
+
     steps:
-      - name: Checkout
+      # Step 1: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Step 2: Setup Node.js
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install app deps
-        run: npm ci || npm install
+      # Step 3: Install app dependencies
+      - name: Install app dependencies
+        run: npm ci
 
+      # Step 4: Start web server
       - name: Start web server
         run: |
           nohup npm start &
-          # Wait for server to be ready
           for i in {1..30}; do
-            if curl -sSf http://localhost:3000 >/dev/null; then echo "Server up"; break; fi
+            if curl -sSf http://localhost:3000 >/dev/null; then
+              echo "Server is up!"
+              break
+            fi
             sleep 1
           done
 
-     #Step 2: Install Maestro using Homebrew
-      - name: Install Maestro
+      # Step 5: Install Maestro and run tests
+      - name: Install Maestro and Run Tests
         run: |
-          brew install maestro
+          # Ensure curl and bash exist
+          sudo apt-get update
+          sudo apt-get install -y curl bash
 
-      # Step 3: Start Android Emulator
-      - name: Start Android Emulator
-        run: |
-          echo "Starting Android emulator..."
-          # Install required packages for Android Emulator
-          sudo apt update
-          sudo apt install -y qemu-kvm libvirt-daemon libvirt-clients bridge-utils
-          curl -s https://dl.google.com/android/repository/commandlinetools-linux-7302050_latest.zip -o commandlinetools.zip
-          unzip commandlinetools.zip
-          mkdir -p ~/.android
-          yes | ./cmdline-tools/bin/sdkmanager --sdk_root=$HOME/.android --licenses
-          ./cmdline-tools/bin/sdkmanager "platform-tools" "emulator" "system-images;android-30;google_apis;x86_64"
-          
-          # Create AVD (Android Virtual Device) if not already created
-          echo "Creating Android AVD if not exists..."
-          echo "no" | ./cmdline-tools/bin/avdmanager create avd -n test-emulator -k "system-images;android-30;google_apis;x86_64" --force
-          
-          # Start the emulator
-          nohup ./emulator/emulator -avd test-emulator -no-window -gpu off &
-          
-          # Wait for the emulator to be ready
-          for i in {1..30}; do
-            if adb devices | grep -q "emulator"; then echo "Emulator is ready"; break; fi
-            sleep 5
-          done
+          # Install Maestro CLI
+          curl -Ls "https://get.maestro.mobile.dev" | bash
 
-      # Step 4: Run Maestro Tests
-      - name: Run Maestro Tests
-        run: |
-          maestro test maestro/login_test.yaml
+          # Add Maestro to PATH for this step
+          export PATH=$HOME/.maestro/bin:$PATH
+
+          # Run Maestro tests (web/Chromium mode by default)
+          maestro test .maestro/login.yaml
+        env:
+          MAESTRO_CLI_NO_ANALYTICS: "1"  # Disable analytics for CI
